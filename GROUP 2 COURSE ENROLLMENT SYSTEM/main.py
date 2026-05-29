@@ -11,7 +11,19 @@ students = []
 courses = []
 enrollments = []
 
+# notebook
+notebook = ttk.Notebook(window)
+tab1 = ttk.Frame(notebook)
+tab2 = ttk.Frame(notebook)
+tab3 = ttk.Frame(notebook)
+notebook.pack(expand=   True,fill="both")
+
+notebook.add(tab1, text="STUDENTS")
+notebook.add(tab2, text="COURSES")
+notebook.add(tab3, text="ENROLLMENTS")
+
 #  students are now done
+
 
 def delete():
     selected = table_tab1.selection()
@@ -23,13 +35,21 @@ def delete():
     confirm = messagebox.askyesno("Delete", "Are you sure you want to delete this record?")
 
     if confirm:
-        table_tab1.delete(selected)
+        # Also remove from students list
+        for item in selected:
+            values = table_tab1.item(item, 'values')
+            for student in students[:]:
+                if student[0] == values[0]:  # Match by Student ID
+                    students.remove(student)
+            table_tab1.delete(item)
+
+        # Refresh student combo in tab3
+        refresh_student_combo()
         messagebox.showinfo("Deleted", "Record deleted successfully.")
         clear()
 
 
 def update():
-
     selected = table_tab1.selection()
 
     if not selected:
@@ -42,10 +62,17 @@ def update():
         entry_gmail.get(),
         combo_course.get(),
     )
-
+    for student in students:
+        if student[0] == values[0]:
+            student[1] = values[1]
+            student[2] = values[2]
+            student[3] = values[3]
+            break
 
     table_tab1.item(selected, values=values)
 
+    # Refresh student combo in tab3
+    refresh_student_combo()
     messagebox.showinfo("Updated", "Student information updated.")
 
     clear()
@@ -109,15 +136,7 @@ style.configure(
     font=("Arial", 12, "bold"),
 )
 
-notebook = ttk.Notebook(window)
-tab1 = ttk.Frame(notebook)
-tab2 = ttk.Frame(notebook)
-tab3 = ttk.Frame(notebook)
-notebook.pack(expand=   True,fill="both")
 
-notebook.add(tab1, text="STUDENTS")
-notebook.add(tab2, text="COURSES")
-notebook.add(tab3, text="ENROLLMENTS")
 
 Label(tab1,text="STUDENTS INFO",font=("Arial", 12, "bold")).place(x=10, y=50)
 Label(tab1,text="Student ID: ",font=("Arial", 10, "bold")).place(x=10, y=150)
@@ -232,39 +251,55 @@ def delete_tab2():
     selected = table_tab2.selection()
 
     if not selected:
-        messagebox.showwarning("Warning", "Select a student first.")
+        messagebox.showwarning("Warning", "Select a course first.")
         return
 
     confirm = messagebox.askyesno("Delete", "Are you sure you want to delete this record?")
 
     if confirm:
-        table_tab2.delete(selected)
+        # Also remove from courses list
+        for item in selected:
+            values = table_tab2.item(item, 'values')
+            for course in courses[:]:
+                if course[0] == values[0]:  # Match by Course Code
+                    courses.remove(course)
+            table_tab2.delete(item)
+
+        # Refresh course combo in tab3
+        refresh_course_combo()
         messagebox.showinfo("Deleted", "Record deleted successfully.")
         clear_tab2()
 
 
 def update_tab2():
-
     selected = table_tab2.selection()
 
     if not selected:
-        messagebox.showwarning("Warning", "Select a student first.")
+        messagebox.showwarning("Warning", "Select a course first.")
         return
 
     values = (
-    Course_code_tab2.get(),
-    Course_name_tab2.get(),
-    spinbox_units_tab2.get(),
-    spinbox_maxs_tab2.get(),
+        Course_code_tab2.get(),
+        Course_name_tab2.get(),
+        spinbox_units_tab2.get(),
+        spinbox_maxs_tab2.get(),
     )
 
+    # Update in courses list
+    for course in courses:
+        if course[0] == values[0]:
+            course[1] = values[1]
+            course[2] = values[2]
+            course[3] = values[3]
+            break
 
     table_tab2.item(selected, values=values)
 
-    messagebox.showinfo("Updated", "Student information updated.")
+    # Refresh course combo in tab3
+    refresh_course_combo()
+    messagebox.showinfo("Updated", "Course information updated.")
 
     clear_tab2()
-
 # update students
 
 def clear_tab2():
