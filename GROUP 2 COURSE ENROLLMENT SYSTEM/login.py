@@ -15,20 +15,17 @@ def toggle_password():
     else:
         password.config(show="*")     # Hide password
 
-def hi():
+def get_theinfo():
     usernames = user.get().strip()
     passwords = password.get().strip()
 
     # ←←← Change this with your actual login logic later
-    if usernames == "admin" and passwords == "123":
-        messagebox.showinfo("Success", "Login Successful!")
+    if usernames == "admin" and passwords == "admin1234":
         window.destroy()
         main.main_window()
-
-
     else:
         messagebox.showerror("Failed", "Invalid username or password!\nPlease try again.")
-        # Login window stays open for retry
+
 
 label = tk.Label(window,
     text="USERNAME",
@@ -67,9 +64,8 @@ checkbox.place(x=440, y=91)
 
 btn = tk.Button(window,
     text="LOGIN",
-    command=hi,
+    command=get_theinfo,
     font=("Arial", 20, "bold"),
-    bg = "#7f00ff",
     fg = "black",
     activebackground="#7f00ff",
     activeforeground="black",

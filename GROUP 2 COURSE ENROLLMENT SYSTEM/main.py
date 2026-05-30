@@ -1,7 +1,8 @@
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk, messagebox
-
+import json
+import os
 
 
 def main_window():
@@ -10,9 +11,33 @@ def main_window():
     window.geometry("1000x600")
     window.resizable(False, False)
 
-    students = []
-    courses = []
-    enrollments = []
+
+
+    # Load data when program starts
+    try:
+        with open("database.json", "r") as file:
+            data = json.load(file)
+
+        students_database = data.get("students", [])
+        courses_database = data.get("courses", [])
+        enrollments_database = data.get("enrollments", [])
+
+    except (FileNotFoundError, json.JSONDecodeError):
+        students_database = []
+        courses_database = []
+        enrollments_database = []
+
+    # Rest of your Tkinter program...
+    def save_data():
+        data_in_tuples = {
+            "students": students_database,
+            "courses": courses_database,
+            "enrollments": enrollments_database
+        }
+
+        with open("database.json", "w") as file:
+            json.dump(data_in_tuples, file, indent=4)
+
 
     # notebook
     notebook = ttk.Notebook(window)
@@ -26,9 +51,8 @@ def main_window():
     notebook.add(tab3, text="ENROLLMENTS")
 
     #  students are now done
-
-
     def delete():
+
         selected = table_tab1.selection()
 
         if not selected:
@@ -41,14 +65,17 @@ def main_window():
             # Also remove from students list
             for item in selected:
                 values = table_tab1.item(item, 'values')
-                for student in students[:]:
-                    if student[0] == values[0]:  # Match by Student ID
-                        students.remove(student)
+                for student_delete in students_database[:]:
+                    if student_delete[0] == values[0]:  # Match by Student ID
+                        students_database.remove(student_delete)
+
                 table_tab1.delete(item)
+                save_data()
 
             # Refresh student combo in tab3
             refresh_student_combo()
             messagebox.showinfo("Deleted", "Record deleted successfully.")
+
             clear()
 
 
@@ -65,14 +92,19 @@ def main_window():
             entry_gmail.get(),
             combo_course.get(),
         )
-        for student in students:
-            if student[0] == values[0]:
-                student[1] = values[1]
-                student[2] = values[2]
-                student[3] = values[3]
+        old_values = table_tab1.item(selected[0], 'values')
+
+        for student_update in students_database:
+            if student_update[0] == old_values[0]:
+                student_update[0] = entry_id.get()
+                student_update[1] = entry_name.get()
+                student_update[2] = entry_gmail.get()
+                student_update[3] = combo_course.get()
                 break
 
+        save_data()
         table_tab1.item(selected, values=values)
+
 
         # Refresh student combo in tab3
         refresh_student_combo()
@@ -87,6 +119,7 @@ def main_window():
         entry_name.delete(0, tk.END)
         entry_gmail.delete(0, tk.END)
         combo_course.set("Select")
+
 
 
 
@@ -105,24 +138,27 @@ def main_window():
 
 
 
+
     def insert_student():
         student_id = entry_id.get()
         name = entry_name.get()
         age = entry_gmail.get()
-        course = combo_course.get()
+        program = combo_course.get()
 
-        if student_id == "" or name == "" or age == ""  or course == "" or course == "":
+        if student_id == "" or name == "" or age == ""  or program == "":
             messagebox.showerror("Error", "Please complete all fields.")
             return
-        for student in students:
-            if student[0] == student_id:
+        for student_loop in students_database:
+            if student_loop[0] == student_id:
                 messagebox.showerror("Error", "Student ID already exists!")
                 return
 
-        data = [student_id, name, age, course]
-        students.append(data)
+        data_insert = [student_id, name, age, program]
+        students_database.append(data_insert)
+        save_data()
 
-        table_tab1.insert('', tk.END, values=data)
+
+        table_tab1.insert('', tk.END, values=data_insert)
 
         refresh_student_combo()
         messagebox.showinfo("Success", "Student enrolled successfully!")
@@ -212,6 +248,8 @@ def main_window():
     )
 
     table_tab1 = ttk.Treeview(table_frame_tab1, columns=columns, show="headings")
+    for student in students_database:
+        table_tab1.insert('', tk.END, values=student)
 
     for col in columns:
         table_tab1.heading(col, text=col)
@@ -262,15 +300,18 @@ def main_window():
         if confirm:
             # Also remove from courses list
             for item in selected:
+
                 values = table_tab2.item(item, 'values')
-                for course in courses[:]:
-                    if course[0] == values[0]:  # Match by Course Code
-                        courses.remove(course)
+                for course_loop in courses_database[:]:
+                    if course_loop[0] == values[0]:  # Match by Course Code
+                        courses_database.remove(course_loop)
                 table_tab2.delete(item)
+                save_data()
 
             # Refresh course combo in tab3
             refresh_course_combo()
             messagebox.showinfo("Deleted", "Record deleted successfully.")
+
             clear_tab2()
 
 
@@ -281,36 +322,44 @@ def main_window():
             messagebox.showwarning("Warning", "Select a course first.")
             return
 
-        values = (
-            Course_code_tab2.get(),
-            Course_name_tab2.get(),
-            spinbox_units_tab2.get(),
-            spinbox_maxs_tab2.get(),
+        code = Course_code_tab2.get()
+        name = Course_name_tab2.get()
+        units = spinbox_units_tab2.get()
+        maxs = spinbox_maxs_tab2.get()
+
+        if not code or not name or not units or not maxs:
+            messagebox.showerror("Error", "Please complete all fields.")
+            return
+
+        # 1. UPDATE LIST FIRST (IMPORTANT FIX)
+        old_values = table_tab2.item(selected[0], 'values')
+
+        for course_list in courses_database:
+            if course_list[0] == old_values[0]:
+                course_list[0] = code
+                course_list[1] = name
+                course_list[2] = units
+                course_list[3] = maxs
+                break
+        current_values = table_tab2.item(selected[0], 'values')
+
+        table_tab2.item(
+            selected[0],
+            values=(code, name, units, maxs, current_values[4]),
         )
 
-        # Update in courses list
-        for course in courses:
-            if course[0] == values[0]:
-                course[1] = values[1]
-                course[2] = values[2]
-                course[3] = values[3]
-                break
+        save_data()
 
-        table_tab2.item(selected, values=values)
-
-        # Refresh course combo in tab3
         refresh_course_combo()
         messagebox.showinfo("Updated", "Course information updated.")
-
         clear_tab2()
-    # update students
+
 
     def clear_tab2():
         Course_code_tab2.delete(0, tk.END)
         Course_name_tab2.delete(0, tk.END)
-        spinbox_units_tab2.delete(0, tk.END)
-        spinbox_maxs_tab2.delete(0, tk.END)
-
+        spinbox_units_tab2.delete(0, "end")
+        spinbox_maxs_tab2.delete(0, "end")
 
     def record_tab2(event):
         selected = table_tab2.selection()
@@ -329,27 +378,29 @@ def main_window():
 
 
     def insert_course_tab2():
-        code=Course_code_tab2.get()
-        course=Course_name_tab2.get()
-        units=spinbox_units_tab2.get()
-        maxs=spinbox_maxs_tab2.get()
+        code = Course_code_tab2.get()
+        coursed = Course_name_tab2.get()
+        units = spinbox_units_tab2.get()
+        maxs = spinbox_maxs_tab2.get()
 
-        if code == "" or course == "" or units == ""  or maxs== "":
+        if code == "" or coursed == "" or units == "" or maxs == "":
             messagebox.showerror("Error", "Please complete all fields.")
             return
-        for existing_course in courses:
+
+        for existing_course in courses_database:
             if existing_course[0] == code:
                 messagebox.showerror("Error", "Course code already exists!")
                 return
 
-        data = [code, course, units, maxs]
-        courses.append(data)
+        datas = [code, coursed, units, maxs, "0"]
+        courses_database.append(datas)
+        save_data()
 
-        table_tab2.insert('', tk.END, values=data)
-
+        table_tab2.insert('', tk.END, values=datas)
 
         refresh_course_combo()
         messagebox.showinfo("Success", "Course added successfully!")
+
         clear_tab2()
     # tab 2
 
@@ -413,7 +464,8 @@ def main_window():
 
     table_tab2 = ttk.Treeview(table_frame_tab2, columns=columns, show="headings")
     table_tab2.bind("<<TreeviewSelect>>",record_tab2)
-
+    for course in courses_database:
+        table_tab2.insert('', tk.END, values=course)
     for col in columns:
         table_tab2.heading(col, text=col)
         table_tab2.column(col, width=80)
@@ -451,32 +503,22 @@ def main_window():
 
     #tab3
 
-
-
     def refresh_student_combo():
-        # refresh tghe student combo with idk
-        student_list = [f"{s[0]} - {s[1]}" for s in students]
+        student_list = [f"{s[0]} - {s[1]}" for s in students_database]
         combo_students['values'] = student_list
-        if student_list:
-            combo_students.set('')
-        else:
-            combo_students.set('')
-
+        combo_students.set('')  # always reset selection
 
     def refresh_course_combo():
-        #  refresh teh course bombo
-        course_list = [f"{c[0]} - {c[1]}" for c in courses]
-        combo_Courses['values'] = course_list
-        if course_list:
-            combo_Courses.set('')
-        else:
-            combo_Courses.set('')
+        course_list = [f"{c[0]} - {c[1]}" for c in courses_database]
+        combo_Courses_to_enroll['values'] = course_list
+        combo_Courses_to_enroll.set('')  # always reset selection
+
 
 
     def enroll_student():
         #enroll a student
         student_selection = combo_students.get()
-        course_selection = combo_Courses.get()
+        course_selection = combo_Courses_to_enroll.get()
 
         if not student_selection or not course_selection:
             messagebox.showwarning("Warning", "Please select both a student and a course.")
@@ -488,7 +530,7 @@ def main_window():
 
         # Find student name
         student_name = ""
-        for student in students:
+        for student in students_database:
             if student[0] == student_id:
                 student_name = student[1]
                 break
@@ -496,27 +538,27 @@ def main_window():
         # Find course name
         course_name = ""
         max_capacity = 0
-        for course in courses:
-            if course[0] == course_code:
-                course_name = course[1]
-                max_capacity = int(course[3])
+        for course_find in courses_database:
+            if course_find[0] == course_code:
+                course_name = course_find[1]
+                max_capacity = int(course_find[3])
                 break
 
         # Check if already enrolled
-        for enrollment in enrollments:
-            if enrollment[0] == student_id and enrollment[2] == course_code:
+        for enrollment_find in enrollments_database:
+            if enrollment_find[0] == student_id and enrollment_find[2] == course_code:
                 messagebox.showerror("Error", "Student is already enrolled in this course!")
                 return
 
         # Check capacity
-        enrolled_count = sum(1 for e in enrollments if e[2] == course_code)
+        enrolled_count = sum(1 for e in enrollments_database if e[2] == course_code)
         if enrolled_count >= max_capacity:
             messagebox.showerror("Error", f"Course has reached maximum capacity ({max_capacity} students)!")
             return
 
         # Add enrollment
         enrollment_data = [student_id, student_name, course_code, course_name, "Enrolled"]
-        enrollments.append(enrollment_data)
+        enrollments_database.append(enrollment_data)
 
         # Add to table
         table_tab3.insert('', tk.END, values=enrollment_data)
@@ -528,27 +570,32 @@ def main_window():
 
         # Clear selections
         combo_students.set('')
-        combo_Courses.set('')
+        combo_Courses_to_enroll.set('')
 
     # update the dode
     def update_enrolled_count(course_code):
+        enrolled_count = sum(1 for e in enrollments_database if e[2] == course_code)
 
-        enrolled_count = sum(1 for e in enrollments if e[2] == course_code)
-
-        # Find and update the course in the treeview
         for item in table_tab2.get_children():
-            values = table_tab2.item(item, 'values')
+            values = list(table_tab2.item(item, 'values'))
+
             if values[0] == course_code:
-                # Update the Enrolled column (index 4)
-                new_values = list(values)
-                new_values[3] = str(enrolled_count)
-                table_tab2.item(item, values=new_values)
+                values[4] = str(enrolled_count)
+                table_tab2.item(item, values=values)
+
+                for course in courses_database:
+                    if course[0] == course_code:
+                        course[4] = str(enrolled_count)
+                        break
+
+                save_data()
                 break
 
 
     def delete_enrollment():
         # delete a table
         selected = table_tab3.selection()
+
 
         if not selected:
             messagebox.showwarning("Warning", "Please select an enrollment to delete.")
@@ -560,12 +607,13 @@ def main_window():
             for item in selected:
                 values = table_tab3.item(item, 'values')
                 # Remove from enrollments list
-                for enrollment in enrollments[:]:
-                    if enrollment[0] == values[0] and enrollment[2] == values[2]:
-                        enrollments.remove(enrollment)
+                for enrollment_loop2 in enrollments_database[:]:
+                    if enrollment_loop2[0] == values[0] and enrollment_loop2[2] == values[2]:
+                        enrollments_database.remove(enrollment_loop2)
                         # Update enrolled count for that course
                         update_enrolled_count(values[2])
                         break
+                save_data()
                 table_tab3.delete(item)
 
             messagebox.showinfo("Success", "Enrollment(s) deleted successfully!")
@@ -582,12 +630,12 @@ def main_window():
     )
     combo_students.place(x=100, y=50)
 
-    combo_Courses = ttk.Combobox(
+    combo_Courses_to_enroll = ttk.Combobox(
         tab3,
         width=30,
         font=("Arial", 10)
     )
-    combo_Courses.place(x=470, y=50)
+    combo_Courses_to_enroll.place(x=470, y=50)
 
     Button(tab3,
            text="Enroll",
@@ -628,6 +676,9 @@ def main_window():
 
     table_tab3 = ttk.Treeview(table_frame_tab3, columns=columns, show="headings")
 
+    for enrollment in enrollments_database:
+        table_tab3.insert('', tk.END, values=enrollment)
+
     for col in columns:
         table_tab3.heading(col, text=col)
         if col == "Student Name" or col == "Course Name":
@@ -637,8 +688,8 @@ def main_window():
 
     table_tab3.pack(fill="both", expand=True)
 
-
     refresh_student_combo()
     refresh_course_combo()
+
 
     window.mainloop()
