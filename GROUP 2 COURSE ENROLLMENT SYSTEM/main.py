@@ -2,7 +2,7 @@ from tkinter import *
 import tkinter as tk
 from tkinter import ttk, messagebox
 import json
-import os
+
 
 
 def main_window():
@@ -13,7 +13,7 @@ def main_window():
 
 
 
-    # Load data when program starts
+    # data base
     try:
         with open("database.json", "r") as file:
             data = json.load(file)
@@ -137,8 +137,6 @@ def main_window():
             combo_course.set(values[3])
 
 
-
-
     def insert_student():
         student_id = entry_id.get()
         name = entry_name.get()
@@ -158,10 +156,11 @@ def main_window():
         save_data()
 
 
+
         table_tab1.insert('', tk.END, values=data_insert)
 
         refresh_student_combo()
-        messagebox.showinfo("Success", "Student enrolled successfully!")
+        messagebox.showinfo("Success", "Student added  successfully!")
         clear()
 
 
@@ -177,11 +176,14 @@ def main_window():
 
 
 
+
     Label(tab1,text="STUDENTS INFO",font=("Arial", 12, "bold")).place(x=10, y=50)
     Label(tab1,text="Student ID: ",font=("Arial", 10, "bold")).place(x=10, y=150)
     Label(tab1,text="Full Name: ",font=("Arial", 10, "bold")).place(x=10, y=200)
     Label(tab1,text="Email: ",font=("Arial", 10, "bold")).place(x=10, y=250)
     Label(tab1,text="Program: ",font=("Arial", 10, "bold")).place(x=10, y=300)
+
+
 
 
 
@@ -191,6 +193,7 @@ def main_window():
     entry_name.place(x=100, y=200)
     entry_gmail = Entry(tab1, font=("Arial", 10))
     entry_gmail.place(x=100, y=250)
+
 
 
     style = ttk.Style()
@@ -224,6 +227,7 @@ def main_window():
     table_frame_tab1 = Frame(tab1, bg="white", bd=2, relief="ridge")
     table_frame_tab1.place(x=330, y=20, width=645, height=380)
 
+
     style = ttk.Style()
     style.theme_use("default")
 
@@ -246,6 +250,7 @@ def main_window():
         "Program",
 
     )
+
 
     table_tab1 = ttk.Treeview(table_frame_tab1, columns=columns, show="headings")
     for student in students_database:
@@ -690,6 +695,5 @@ def main_window():
 
     refresh_student_combo()
     refresh_course_combo()
-
 
     window.mainloop()
