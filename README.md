@@ -1,5 +1,5 @@
 # Group-2-Course-Enrollment-System
-A project for our programming subject IT143
+Final Project in Computer Programming 2 (IT143)
 
 System Description:
 
@@ -13,10 +13,14 @@ Instructions on How to Run the System:
 
 To run the program, download the code then open the downloaded file using Pycharm. Once you open it, you can see three files on the side. Go to the login.py file then run it by pressing the run button on the top or right click and press run 'login'. After running login.py, you need to login which can be done by putting "admin" as the username and "admin1234" as the password. You can press the checkbox to make sure you typed the password correctly. When you finish the login, you will be met by the main interface of the Course Enrollment System wherein you can add, read, update and delete information in the Students, Courses, and Enrollments modules. All modifications made within the system are automatically stored in the database file for future use.
 
-Group 2 members 
+Group 2 members: 
 
 Fiel, Jeg Elaine L.
+
 Guy-joco, Angela Ivana N.
+
 Magbanua, Christian John B.
+
 Mellomida, Hendrick C.
+
 Payot, Lee Ann L.
