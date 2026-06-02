@@ -16,7 +16,11 @@ To use the system, install Python 3 on your computer and place the program file 
 Group 2 members 
 
 Fiel, Jeg Elaine L.
+
 Guy-joco, Angela Ivana N.
+
 Magbanua, Christian John B.
+
 Mellomida, Hendrick C.
+
 Payot, Lee Ann L.
