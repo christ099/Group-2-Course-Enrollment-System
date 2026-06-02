@@ -1,5 +1,5 @@
 # Group-2-Course-Enrollment-System
-a project for our programming subject IT143
+A project for our programming subject IT143
 
 System Description:
 
@@ -11,16 +11,12 @@ The system provides complete Create, Read, Update, and Delete (CRUD) functionali
 
 Instructions on How to Run the System:
 
-To use the system, install Python 3 on your computer and place the program file together with the database.json file in the same directory. Open a command prompt or terminal, go to the folder containing the files, and execute the program using the command python login.py. After launching, the application login will appear, and you must log in using the user as "admin" and the password is "admin1234" and the main window will appear, and you can view and provide access to the Students, Courses, and Enrollments modules. All modifications made within the system are automatically stored in the database file for future use.
+To run the program, download the code then open the downloaded file using Pycharm. Once you open it, you can see three files on the side. Go to the login.py file then run it by pressing the run button on the top or right click and press run 'login'. After running login.py, you need to login which can be done by putting "admin" as the username and "admin1234" as the password. You can press the checkbox to make sure you typed the password correctly. When you finish the login, you will be met by the main interface of the Course Enrollment System wherein you can add, read, update and delete information in the Students, Courses, and Enrollments modules. All modifications made within the system are automatically stored in the database file for future use.
 
 Group 2 members 
 
 Fiel, Jeg Elaine L.
-
 Guy-joco, Angela Ivana N.
-
 Magbanua, Christian John B.
-
 Mellomida, Hendrick C.
-
 Payot, Lee Ann L.
