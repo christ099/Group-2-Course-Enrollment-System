@@ -57,7 +57,7 @@ def get_theinfo():
     passwords = password.get().strip()
 
     # ←←← Change this with your actual login logic later
-    if usernames == "4" and passwords == "4":
+    if usernames == "admin" and passwords == "admin1234":
         window.destroy()
         main.main_window()
     else:
